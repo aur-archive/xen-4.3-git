@@ -1,0 +1,70 @@
+diff -Naur xen/Config.mk xen-a/Config.mk
+--- xen/Config.mk	2013-07-14 06:38:15.788060484 -0600
++++ xen-a/Config.mk	2013-07-27 20:34:57.765730779 -0600
+@@ -208,12 +208,12 @@
+ SEABIOS_UPSTREAM_URL ?= http://xenbits.xen.org/git-http/seabios.git
+ else
+ OVMF_UPSTREAM_URL ?= git://xenbits.xen.org/ovmf.git
+-QEMU_UPSTREAM_URL ?= git://xenbits.xen.org/qemu-upstream-4.3-testing.git
+-SEABIOS_UPSTREAM_URL ?= git://xenbits.xen.org/seabios.git
++QEMU_UPSTREAM_URL ?= git://git.qemu.org/qemu.git
++SEABIOS_UPSTREAM_URL ?= git://git.seabios.org/seabios.git
+ endif
+ OVMF_UPSTREAM_REVISION ?= b0855f925c6e2e0b21fbb03fab4b5fb5b6876871
+-QEMU_UPSTREAM_REVISION ?= qemu-xen-4.3.0
+-SEABIOS_UPSTREAM_TAG ?= 3a28511b46f0c2af5fae1b6ed2b0c19d7913cee3
++QEMU_UPSTREAM_REVISION ?= master
++SEABIOS_UPSTREAM_TAG ?= master
+ # Wed Jun 26 16:30:45 2013 +0100
+ # xen: Don't perform SMP setup.
+ 
+diff -Naur xen/tools/Makefile xen-a/tools/Makefile
+--- xen/tools/Makefile	2013-07-14 06:38:15.885060484 -0600
++++ xen-a/tools/Makefile	2013-07-27 20:36:13.274730779 -0600
+@@ -187,7 +187,7 @@
+ 		source=.; \
+ 	fi; \
+ 	cd qemu-xen-dir; \
+-	$$source/configure --enable-xen --target-list=i386-softmmu \
++	$$source/configure --enable-xen --target-list=i386-softmmu,x86_64-softmmu,arm-softmmu \
+ 		--prefix=$(PREFIX) \
+ 		--source-path=$$source \
+ 		--extra-cflags="-I$(XEN_ROOT)/tools/include \
+@@ -199,7 +199,24 @@
+ 		-L$(XEN_ROOT)/tools/xenstore" \
+ 		--bindir=$(LIBEXEC) \
+ 		--datadir=$(SHAREDIR)/qemu-xen \
+-		--disable-kvm \
++		--disable-werror \
++                --enable-spice \
++                --enable-usb-redir \
++	 	--enable-libusb \
++                --enable-guest-agent \
++                --enable-sdl \
++		--enable-xen-pci-passthrough \
++		--enable-libusb \
++		--enable-tpm \
++		--enable-bluez \
++		--enable-vhost-net \
++		--enable-vde \
++                --enable-linux-aio \
++                --enable-smartcard-nss \
++                --enable-libiscsi \
++                --audio-drv-list=alsa,sdl \
++                --disable-docs \
++                --enable-mixemu \
+ 		--disable-docs \
+ 		--python=$(PYTHON) \
+ 		$(IOEMU_CONFIGURE_CROSS); \
+diff -Naur xen/tools/libxl/libxl_dm.c xen-a/tools/libxl/libxl_dm.c
+--- xen/tools/libxl/libxl_dm.c	2013-07-14 06:38:16.033060484 -0600
++++ xen-a/tools/libxl/libxl_dm.c	2013-07-27 20:34:57.767730779 -0600
+@@ -50,7 +50,7 @@
+             dm = libxl__abs_path(gc, "qemu-dm", libxl__libexec_path());
+             break;
+         case LIBXL_DEVICE_MODEL_VERSION_QEMU_XEN:
+-            dm = libxl__abs_path(gc, "qemu-system-i386", libxl__libexec_path());
++            dm = libxl__abs_path(gc, "qemu-system-x86_64", libxl__libexec_path());
+             break;
+         default:
+             LIBXL__LOG(ctx, LIBXL__LOG_ERROR,
